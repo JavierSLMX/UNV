@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SuperLeads · Proceso Comercial UNV</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --sl-navy:#012583;
+  --sl-purple-1:#1A0A62;
+  --sl-purple-2:#220A78;
+  --sl-mint:#56EEA1;
+  --sl-cta-blue:#2870FF;
+  --sl-white:#FFFFFF;
+  --sl-text-dark:#1A1A2E;
+  --muted:#8B8BA3;
+  --mist:#F2F3F9;
+  --line:rgba(255,255,255,.14);
+  --line-dark:#E2E2EE;
+  --font-h:'Space Grotesk',sans-serif;
+  --font-b:'Plus Jakarta Sans',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#0A0624;color:var(--sl-white);font-family:var(--font-b);-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
+::selection{background:var(--sl-mint);color:var(--sl-purple-1)}
+
+.progress{position:fixed;top:0;left:0;height:3px;background:var(--sl-mint);z-index:40;width:0;transition:width .3s}
+.topbar{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;justify-content:space-between;padding:16px 26px;pointer-events:none}
+.brand{display:flex;align-items:center;gap:10px;pointer-events:auto}
+.mark{width:32px;height:32px;border-radius:9px;background:var(--sl-mint);color:var(--sl-purple-1);font-family:var(--font-h);font-weight:700;display:flex;align-items:center;justify-content:center;font-size:16px}
+.brand .name{font-family:var(--font-h);font-weight:700;font-size:14px}
+.brand .tag{display:block;font-size:10px;letter-spacing:.04em;color:var(--sl-mint)}
+.slide-count{font-family:var(--font-h);font-size:12px;color:var(--muted);pointer-events:auto}
+.jump{pointer-events:auto}
+.jump select{
+  background:rgba(255,255,255,.08);border:1px solid var(--line);color:#fff;
+  border-radius:8px;padding:6px 10px;font-size:12px;font-family:var(--font-b);
+}
+
+.deck{position:relative;height:100%;overflow:hidden}
+.slide{
+  position:absolute;inset:0;padding:64px 64px 96px;
+  display:none;flex-direction:column;justify-content:center;
+  background:linear-gradient(135deg,var(--sl-navy) 0%,var(--sl-purple-1) 55%,var(--sl-purple-2) 100%);
+  opacity:0;transform:translateY(16px);
+}
+.slide.on{display:flex;animation:in .4s ease forwards}
+.slide.light{background:var(--mist);color:var(--sl-text-dark)}
+.slide.light .eyebrow{color:var(--sl-cta-blue)}
+.slide.light .lede{color:#4A4A63}
+.slide.light .muted{color:#5B5B74}
+@keyframes in{to{opacity:1;transform:none}}
+
+.nav{position:fixed;bottom:20px;right:24px;z-index:30;display:flex;gap:8px}
+.nav button{
+  min-width:44px;height:44px;border-radius:12px;
+  background:rgba(255,255,255,.1);border:1px solid var(--line);
+  font-weight:700;font-size:18px;
+}
+.nav button:hover{background:rgba(86,238,161,.2);border-color:var(--sl-mint)}
+.dots{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);z-index:30;display:flex;gap:5px;flex-wrap:wrap;max-width:52vw;justify-content:center;padding:7px 10px;border-radius:999px;background:rgba(10,6,36,.55)}
+.dots button{width:7px;height:7px;border-radius:99px;background:rgba(255,255,255,.35)}
+.dots button.now{width:20px;background:var(--sl-mint)}
+.slide.light ~ * {}
+
+.eyebrow{font-family:var(--font-h);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--sl-mint);font-weight:600;margin-bottom:12px}
+h1{font-family:var(--font-h);font-weight:700;font-size:clamp(32px,5vw,62px);line-height:1.06;max-width:18ch}
+h2{font-family:var(--font-h);font-weight:700;font-size:clamp(26px,3.4vw,42px);line-height:1.12;max-width:24ch}
+.lede{font-size:clamp(16px,1.55vw,21px);line-height:1.55;color:#D5D8F0;max-width:48ch;margin-top:14px}
+.quote{font-family:var(--font-h);font-size:clamp(22px,2.7vw,34px);line-height:1.3;max-width:24ch}
+.muted{color:#C9CEF2;font-size:14.5px;line-height:1.5}
+.foot{position:absolute;bottom:78px;left:64px;right:64px;font-size:12px;color:var(--muted)}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:22px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:20px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px}
+.card{
+  background:rgba(255,255,255,.06);border:1px solid var(--line);
+  border-radius:16px;padding:18px 18px 16px;text-align:left;
+  transition:transform .2s,border-color .2s,background .2s;
+}
+.card:hover,.card:focus-visible{transform:translateY(-2px);border-color:rgba(86,238,161,.45)}
+.card h3{font-family:var(--font-h);font-size:17px;margin-bottom:6px}
+.card p,.card li{font-size:14px;line-height:1.45;color:#C9CEF2}
+.slide.light .card{background:#fff;border-color:var(--line-dark);color:var(--sl-text-dark)}
+.slide.light .card p,.slide.light .card li{color:#4A4A63}
+
+.kpi .n{font-family:var(--font-h);font-size:clamp(28px,3.6vw,44px);font-weight:700;color:var(--sl-mint);line-height:1}
+.kpi .l{font-size:13px;color:#C9CEF2;margin-top:6px;line-height:1.35}
+.slide.light .kpi .l{color:#5B5B74}
+
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 11px;font-size:11.5px;font-weight:700;background:rgba(86,238,161,.16);color:var(--sl-mint)}
+.pill.warn{background:rgba(196,80,80,.18);color:#FFB4B4}
+.pill.amber{background:rgba(232,168,56,.18);color:#F3C56B}
+.pill.blue{background:rgba(40,112,255,.2);color:#9CBCFF}
+
+.funnel{display:flex;flex-direction:column;align-items:center;gap:7px;margin-top:18px}
+.fbar{
+  color:#fff;border-radius:10px;padding:9px 14px;text-align:center;cursor:pointer;
+  font-family:var(--font-h);font-weight:700;font-size:14px;
+  transition:filter .15s,transform .15s;
+}
+.fbar:hover,.fbar:focus-visible{filter:brightness(1.12);transform:translateY(-1px)}
+.fbar small{display:block;font-family:var(--font-b);font-weight:500;font-size:11.5px;color:#E4E6F7;margin-top:2px}
+
+.stage-head{
+  display:flex;align-items:center;gap:14px;margin-bottom:14px;
+}
+.stage-num{
+  font-family:var(--font-h);font-weight:700;font-size:22px;color:var(--sl-purple-1);
+  background:var(--sl-mint);min-width:52px;height:52px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+}
+
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 14px}
+.tab{
+  border:1px solid var(--line);border-radius:999px;padding:7px 13px;
+  font-size:12.5px;font-weight:700;background:rgba(255,255,255,.06);
+}
+.tab.on{background:rgba(86,238,161,.16);border-color:var(--sl-mint);color:var(--sl-mint)}
+.panel{display:none}
+.panel.on{display:block}
+.example{
+  background:rgba(255,255,255,.07);border:1px dashed rgba(86,238,161,.35);
+  border-radius:14px;padding:16px 18px;font-size:15px;line-height:1.55;color:#E4E6F7;font-style:italic;
+}
+
+.fold{
+  width:100%;text-align:left;border-radius:14px;padding:14px 16px;margin-bottom:8px;
+  background:rgba(255,255,255,.06);border:1px solid var(--line);
+  display:flex;gap:12px;align-items:flex-start;
+}
+.fold .num{font-family:var(--font-h);color:var(--sl-mint);font-weight:700;min-width:26px}
+.fold h3{font-family:var(--font-h);font-size:16px;margin-bottom:2px}
+.fold p{display:none;font-size:14px;color:#C9CEF2;line-height:1.5;margin-top:4px}
+.fold.open{background:rgba(86,238,161,.1);border-color:rgba(86,238,161,.4)}
+.fold.open p{display:block}
+.slide.light .fold{background:#fff;border-color:var(--line-dark)}
+.slide.light .fold p{color:#4A4A63}
+.slide.light .fold.open{background:#F4FFF9;border-color:var(--sl-mint)}
+
+.check{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);text-align:left;width:100%}
+.check input{margin-top:3px;accent-color:var(--sl-mint);width:16px;height:16px}
+.check span{font-size:15px;line-height:1.4}
+.slide.light .check{border-color:var(--line-dark)}
+
+.table{width:100%;border-collapse:collapse;margin-top:12px;font-size:13.5px}
+.table th{text-align:left;font-family:var(--font-h);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--sl-mint);padding:8px 10px;border-bottom:1px solid var(--line)}
+.table td{padding:8px 10px;border-bottom:1px solid var(--line);color:#E4E6F7;vertical-align:top}
+.slide.light .table th{color:var(--sl-cta-blue);border-color:var(--line-dark)}
+.slide.light .table td{color:var(--sl-text-dark);border-color:var(--line-dark)}
+
+@media (max-width:900px){
+  .slide{padding:72px 20px 120px}
+  .grid2,.grid3,.grid4{grid-template-columns:1fr}
+  .foot{left:20px;right:20px}
+  .dots{max-width:70vw;bottom:72px}
+  h1{font-size:30px}
+}
+@media (prefers-reduced-motion:reduce){
+  .slide.on{animation:none;opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+<div class="progress" id="bar"></div>
+<div class="topbar">
+  <div class="brand">
+    <div class="mark">S</div>
+    <div>
+      <div class="name">SuperLeads</div>
+      <span class="tag">Expertos en Inscripciones</span>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px" class="jump">
+    <select id="jumpSel" aria-label="Ir a sección"></select>
+    <div class="slide-count" id="count">01</div>
+  </div>
+</div>
+
+<div class="deck" id="deck">
+
+<!-- 0 COVER -->
+<section class="slide on" data-i="0" data-label="Portada">
+  <p class="eyebrow">UNV · Ciudad Guzmán y Sahuayo · Septiembre 2026</p>
+  <h1>Así se trabaja una oportunidad. De punta a punta.</h1>
+  <p class="lede">Playbook único de coordinación y operación. Misma cadencia, mismas etiquetas, mismo criterio de perdido — en los dos campus.</p>
+</section>
+
+<!-- 1 PARA QUIÉN -->
+<section class="slide" data-i="1" data-label="Para quién">
+  <p class="eyebrow">Para quién es</p>
+  <h2>No es un manual de CRM. Es el acuerdo de cómo se trabaja.</h2>
+  <div class="grid2">
+    <div class="card">
+      <span class="pill">Operación</span>
+      <h3 style="margin-top:10px">Asesoras</h3>
+      <p>Evelyn e Ingrid en Guzmán. Fátima en Sahuayo. Qué hacer con cada oportunidad, en qué orden y cómo dejar rastro.</p>
+    </div>
+    <div class="card">
+      <span class="pill">Coordinación</span>
+      <h3 style="margin-top:10px">Dirección de campus</h3>
+      <p>Andrea en Guzmán. Lili en Sahuayo. Cómo auditar el día sin leer 40 chats, qué vistas usar y cuándo intervenir.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 2 ACUERDOS -->
+<section class="slide" data-i="2" data-label="El acuerdo">
+  <p class="eyebrow">1 · Lo que ya no se discute</p>
+  <h2>Cinco reglas. Las mismas en los dos campus.</h2>
+  <div style="margin-top:18px;max-width:820px">
+    <button class="fold open" type="button"><span class="num">01</span><span><h3>Se llama desde el CRM</h3><p>Ambos campus ya tienen número. La Nota no sustituye la llamada: la explica.</p></span></button>
+    <button class="fold" type="button"><span class="num">02</span><span><h3>Cadencia 1 + 1 × 3 días</h3><p>En Contactado y Calificado: una llamada y un WhatsApp por día, tres días. No es 1-3-7. El cuatrimestre cierra.</p></span></button>
+    <button class="fold" type="button"><span class="num">03</span><span><h3>Registro triple</h3><p>Cada intento deja etiqueta (Intento 1, 2 o 3), Nota y Tarea del siguiente paso. Si no está ahí, no pasó.</p></span></button>
+    <button class="fold" type="button"><span class="num">04</span><span><h3>Valentina perfila, no cierra</h3><p>No cotiza colegiatura. No responde titulación ni control escolar. Precio y cierre son de la asesora.</p></span></button>
+    <button class="fold" type="button"><span class="num">05</span><span><h3>Conversión primero</h3><p>Si falta correo o programa, se trabaja igual. El dato se completa en cuanto se sepa. Un campo vacío no frena un cierre.</p></span></button>
+  </div>
+</section>
+
+<!-- 3 ROLES -->
+<section class="slide light" data-i="3" data-label="Roles">
+  <p class="eyebrow">Quién hace qué</p>
+  <h2>Cuatro roles. Una sola cola.</h2>
+  <div class="grid2" style="margin-top:20px">
+    <div class="card"><h3>Asesora</h3><p>Guzmán: Evelyn, Ingrid · Sahuayo: Fátima. Corre cadencia, califica, agenda, registra, tipifica.</p></div>
+    <div class="card"><h3>Dirección de campus</h3><p>Guzmán: Andrea · Sahuayo: Lili. Audita etiquetas y notas, interviene en Calificado y Cita, decide excepciones de oferta.</p></div>
+    <div class="card"><h3>IA Valentina</h3><p>Primer filtro de Nuevos y de rescates que responden. Entrega contexto. Handoff a la asesora.</p></div>
+    <div class="card"><h3>SuperLeads</h3><p>Automatizaciones, base de Valentina, vistas y cadencias. No opera la cola del día.</p></div>
+  </div>
+</section>
+
+<!-- 4 ESTADOS -->
+<section class="slide" data-i="4" data-label="Estados">
+  <p class="eyebrow">Arquitectura · estados</p>
+  <h2>Cuatro estados. Una diferencia que no se negocia.</h2>
+  <div class="grid4">
+    <div class="card kpi"><div class="n" style="font-size:22px;color:#9CBCFF">Abierto</div><p class="l">En proceso activo.</p></div>
+    <div class="card kpi"><div class="n" style="font-size:22px">Ganado</div><p class="l">Inscrito. Fin de este embudo.</p></div>
+    <div class="card kpi"><div class="n" style="font-size:22px;color:#FFB4B4">Perdido</div><p class="l">Dijo que no, o se agotó protocolo con contacto previo. Razón obligatoria.</p></div>
+    <div class="card kpi"><div class="n" style="font-size:22px;color:#F3C56B">Abandonado</div><p class="l">Solo Nuevo. Nunca hubo contacto bidireccional.</p></div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h3>La regla</h3>
+    <p>De Contactado en adelante, el silencio tras agotar cadencia es <b style="color:var(--sl-mint)">Ghosting</b> — ya hubo contacto informado. Si dijo una objeción real (precio, otra universidad, “el próximo cuatrimestre”), se tipifica esa razón. Nunca Ghosting.</p>
+  </div>
+</section>
+
+<!-- 5 MAPA -->
+<section class="slide" data-i="5" data-label="Mapa del embudo">
+  <p class="eyebrow">Mapa · toca una etapa</p>
+  <h2>Ocho etapas. Las mismas en ambos campus.</h2>
+  <div class="funnel" id="funnel"></div>
+</section>
+
+<!-- 6 NUEVO -->
+<section class="slide light" data-i="6" data-label="01 Nuevo">
+  <div class="stage-head"><div class="stage-num">01</div><div><p class="eyebrow" style="margin:0">Etapa</p><h2>Nuevo</h2></div></div>
+  <p class="lede" style="margin-top:0">Capturar y lograr el primer contacto bidireccional. Aquí no se vende. Se filtra.</p>
+  <div class="grid2">
+    <div class="card">
+      <h3>Qué ocurre</h3>
+      <p>Acuse &lt;5 min. Auto de Nuevos: 3 WhatsApp en 3 días. Si responde, Valentina califica y avisa. Sin respuesta → Abandonado. Datos basura → No válido.</p>
+    </div>
+    <div class="card">
+      <h3>Qué hace la asesora</h3>
+      <p>No vaciar Nuevo a mano si la auto está prendida. Excepción: lead caliente de plaza, feria o Instagram que pidió hablar hoy. Notificación de respuesta = llamada el mismo bloque. No mañana.</p>
+    </div>
+  </div>
+  <div class="grid3">
+    <div class="card kpi"><div class="n" style="font-size:22px;color:var(--sl-cta-blue)">3 días</div><div class="l">Tiempo máximo</div></div>
+    <div class="card kpi"><div class="n" style="font-size:22px;color:var(--sl-cta-blue)">Auto + IA</div><div class="l">Dueño. Asesora solo en calientes.</div></div>
+    <div class="card kpi"><div class="n" style="font-size:22px;color:var(--sl-cta-blue)">No válido · Abandonado</div><div class="l">Únicas tipificaciones de esta etapa</div></div>
+  </div>
+</section>
+
+<!-- 7 CONTACTADO -->
+<section class="slide light" data-i="7" data-label="02 Contactado">
+  <div class="stage-head"><div class="stage-num">02</div><div><p class="eyebrow" style="margin:0">Etapa</p><h2>Contactado</h2></div></div>
+  <p class="lede" style="margin-top:0">Entender situación, fijar programa y mover a Calificado. Se acaba el “lead que contestó un sí”.</p>
+  <div class="grid2">
+    <div class="card">
+      <h3>Entra / sale</h3>
+      <p>Entra con contacto bidireccional (Nuevo o rescate). Sale a Calificado cuando hay programa o nivel, motivo y persona real. Si se agota 1+1×3 → Ghosting (Contactado).</p>
+    </div>
+    <div class="card">
+      <h3>Las 4 acciones</h3>
+      <p>1. Leer contexto antes de marcar. 2. Llamar; si no, WA + Tarea + etiqueta. 3. Actualizar Oferta académica en el acto. 4. No cotizar por mensaje suelto.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 8 CALIFICADO -->
+<section class="slide light" data-i="8" data-label="03 Calificado">
+  <div class="stage-head"><div class="stage-num">03</div><div><p class="eyebrow" style="margin:0">Etapa</p><h2>Calificado</h2></div></div>
+  <p class="lede" style="margin-top:0">Confirmar que es real, viable y tiene intención. Dirección puede entrar. Por eso esta etapa existe.</p>
+  <div class="grid3">
+    <div class="card"><h3>Qué ocurre</h3><p>Se marcan Urgencia y Dolor. Quién decide: el interesado o quien paga. Se propone fecha con calendario real.</p></div>
+    <div class="card"><h3>Regla de oro</h3><p>“Te agendo mañana a las 5 o el sábado a las 11.” Si no acepta fecha, no es Calificado eterno: en 3 días se tipifica.</p></div>
+    <div class="card"><h3>Cuándo entra Dirección</h3><p>Urgencia + Dolor altos. Ellos cierran mejor “lo voy a pensar” y la objeción de precio.</p></div>
+  </div>
+</section>
+
+<!-- 9 CITA -->
+<section class="slide light" data-i="9" data-label="04 Cita">
+  <div class="stage-head"><div class="stage-num">04</div><div><p class="eyebrow" style="margin:0">Etapa</p><h2>Cita (Agendada)</h2></div></div>
+  <p class="lede" style="margin-top:0">Que asista. Si no asiste, se recupera aquí. Un No Show no se manda a Asistencia “para ver qué pasa”.</p>
+  <table class="table">
+    <thead><tr><th>Momento</th><th>Acción</th><th>Canal</th></tr></thead>
+    <tr><td>24 h antes</td><td>Confirmar y resolver la duda de último minuto</td><td>Llamada + WA</td></tr>
+    <tr><td>1 h antes</td><td>Hora, lugar o link, quién atiende</td><td>WhatsApp</td></tr>
+    <tr><td>No Show + 24 h</td><td>Empatía + reagendar. No regaño</td><td>Llamada + WA</td></tr>
+    <tr><td>No Show + 48 h</td><td>No se puede guardar el lugar en el proceso</td><td>Llamada + WA</td></tr>
+  </table>
+  <div class="card" style="margin-top:14px">
+    <h3>Ejemplo No Show + 24 h</h3>
+    <p style="font-style:italic">Hola [Nombre], te esperamos hoy y no lograste llegar. Pasa. ¿Lo dejamos mañana a las 5 o el sábado a las 11? El cuatrimestre no espera y quiero dejarte el plan cerrado.</p>
+  </div>
+</section>
+
+<!-- 10 ASISTENCIA -->
+<section class="slide light" data-i="10" data-label="05 Asistencia">
+  <div class="stage-head"><div class="stage-num">05</div><div><p class="eyebrow" style="margin:0">Etapa</p><h2>Asistencia</h2></div></div>
+  <p class="lede" style="margin-top:0">Que la visita no se vuelva “me lo voy a pensar” eterno. 1+1 × 3 días. Objeción real ≠ Ghosting.</p>
+  <div class="card">
+    <h3>Reporte de visita — Nota el mismo día</h3>
+    <p>Qué le gustó · Objeciones · Interés percibido (alto / medio / bajo) · Acuerdo · Fecha en la que dijo que decide o paga.</p>
+  </div>
+  <div class="grid3" style="margin-top:14px">
+    <div class="card"><h3>Dueño</h3><p>Asesora. Dirección entra en precio o competencia.</p></div>
+    <div class="card"><h3>Tiempo máximo</h3><p>3 días para Internas / Inscrito o tipificar.</p></div>
+    <div class="card"><h3>Silencio</h3><p>Sin objeción de por medio = Ghosting (Asistencia).</p></div>
+  </div>
+</section>
+
+<!-- 11 INTERNAS -->
+<section class="slide light" data-i="11" data-label="06–07 Internas">
+  <p class="eyebrow">Etapas 06 y 07 · lo propio de UNV</p>
+  <h2>El trámite no se evapora por falta de dueño.</h2>
+  <div class="grid2">
+    <div class="card">
+      <span class="pill blue">06</span>
+      <h3 style="margin-top:8px">Entrega de documentos</h3>
+      <p>Documentación, pago de inscripción, alta en control escolar. Cada sub-paso con responsable y tiempo máximo. Alarma: más de 5 días hábiles sin movimiento.</p>
+    </div>
+    <div class="card">
+      <span class="pill blue">07</span>
+      <h3 style="margin-top:8px">Inscrito en espera de grupo</h3>
+      <p>Ya pagó / ya está en proceso, pero el grupo del programa todavía no está confirmado. Sigue visible. No es Inscrito cerrado ni un cajón.</p>
+    </div>
+  </div>
+  <p class="muted" style="margin-top:14px;color:#5B5B74">Entra con acuerdo post-visita o cierre verbal con pendiente. Sale a Inscrito con pago y alta. Perdido: barrera, competencia, timing o requisito no cubierto.</p>
+</section>
+
+<!-- 12 INSCRITO -->
+<section class="slide" data-i="12" data-label="08 Inscrito">
+  <div class="stage-head"><div class="stage-num">08</div><div><p class="eyebrow" style="margin:0">Etapa</p><h2 style="color:#fff">Inscrito</h2></div></div>
+  <p class="lede">Formalización real. Aquí no se sigue vendiendo. Si se cae un “inscrito” que no pagó, no era Inscrito: se regresa a Internas o se tipifica.</p>
+  <div class="grid2">
+    <div class="card"><h3>Entra</h3><p>Pago y documentos listos. No un “me voy a inscribir”.</p></div>
+    <div class="card"><h3>Sale</h3><p>Fin de este embudo. Retención y referidos viven en otro tablero — después de la bienvenida, no en la visita de cierre.</p></div>
+  </div>
+</section>
+
+<!-- 13 CADENCIA -->
+<section class="slide" data-i="13" data-label="Cadencia 1+1×3">
+  <p class="eyebrow">Cadencia humana</p>
+  <h2>1 llamada + 1 WhatsApp × 3 días.</h2>
+  <p class="lede" style="margin-top:8px">Contactado, Calificado y cualquier lead que la auto reactivó.</p>
+  <div class="grid3">
+    <div class="card"><span class="pill">Día 1</span><h3 style="margin-top:8px">Llamada de trabajo</h3><p>Si no contestan: WA con contexto. Cierre: Intento 1 + Nota + Tarea día 2.</p></div>
+    <div class="card"><span class="pill">Día 2</span><h3 style="margin-top:8px">Otro horario</h3><p>Motivo concreto para que devuelva. Se quita Intento 1. Queda Intento 2.</p></div>
+    <div class="card"><span class="pill">Día 3</span><h3 style="margin-top:8px">Breakup</h3><p>Deja la puerta abierta, no ruega. Sin respuesta al corte → Perdido / Ghosting de la etapa.</p></div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <h3>Tres reglas</h3>
+    <p>La auto de Nuevos no cuenta como los 3 intentos humanos. Si contestan en el 1, se acaba la cadencia. Un intento = un día. Audio genérico (“¿sigues interesado?”) está prohibido.</p>
+  </div>
+</section>
+
+<!-- 14 REGISTRO -->
+<section class="slide light" data-i="14" data-label="Registro triple">
+  <p class="eyebrow">Protocolo transversal</p>
+  <h2>Etiqueta. Nota. Tarea. Siempre juntas.</h2>
+  <div class="grid3">
+    <div class="card">
+      <h3>Etiqueta</h3>
+      <p>Intento 1, 2 o 3. Una sola viva: al pasar a 2 se quita 1. Si avanza de etapa, se quitan todas. El lote de rescate lleva su etiqueta extra.</p>
+    </div>
+    <div class="card">
+      <h3>Nota</h3>
+      <p>No es “llamé”. Es fecha, resultado, programa, qué se dijo, siguiente paso, objeción. “Se le marcó. No contestó.” no sirve.</p>
+    </div>
+    <div class="card">
+      <h3>Tarea</h3>
+      <p>Con fecha y hora. Título: “Intento 2 — Carla — Criminología”. Si hay cita, la tarea es la confirmación 24 h y 1 h.</p>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <h3>Nota que sí sirve</h3>
+    <p style="font-style:italic">07-sep · Llamada no contestada + WA intento 2. Interés: Criminología (lo dijo en el botón de la auto). Quedó tarea 08-sep 11:00. Sin objeción todavía.</p>
+  </div>
+</section>
+
+<!-- 15 DECIR -->
+<section class="slide" data-i="15" data-label="Qué decir">
+  <p class="eyebrow">Criterio + ejemplos</p>
+  <h2>Contexto → motivo de hoy → un solo siguiente paso.</h2>
+  <div class="tabs" id="exTabs"></div>
+  <div id="exPanels"></div>
+</section>
+
+<!-- 16 UD -->
+<section class="slide light" data-i="16" data-label="Urgencia y Dolor">
+  <p class="eyebrow">Calificación</p>
+  <h2>A quién se le dedica el siguiente bloque.</h2>
+  <div class="grid2">
+    <div class="card">
+      <h3>Urgencia</h3>
+      <p><b>Alta</b> — este cuatrimestre, lo corrieron, mudanza con fecha.<br><b>Media</b> — “a lo mejor enero”.<br><b>Baja</b> — explora con calma.</p>
+    </div>
+    <div class="card">
+      <h3>Dolor · tres fuentes, no alternativas</h3>
+      <p><b>Persona</b> — trabajo, título pendiente, cambio de rumbo.<br><b>Entorno</b> — horario, costo, distancia.<br><b>Comparativo</b> — otras universidades y por qué duda.</p>
+    </div>
+  </div>
+  <table class="table">
+    <thead><tr><th>Urgencia × Dolor</th><th>Hoy</th></tr></thead>
+    <tr><td>Alta + Alto</td><td>Caliente. Llamada y cita el mismo día.</td></tr>
+    <tr><td>Alta + Bajo, o Baja + Alto</td><td>Cadencia normal. No se deja para la próxima semana.</td></tr>
+    <tr><td>Baja + Bajo</td><td>Cero esfuerzo extra. Si no avanza en 3 días, se tipifica.</td></tr>
+  </table>
+</section>
+
+<!-- 17 CATALOGO -->
+<section class="slide" data-i="17" data-label="Catálogo de perdido">
+  <p class="eyebrow">Catálogo · toca cada motivo</p>
+  <h2>Un perdido sin razón es un dato muerto.</h2>
+  <div class="grid2" id="catGrid" style="margin-top:14px"></div>
+</section>
+
+<!-- 18 AUTOS -->
+<section class="slide light" data-i="18" data-label="Automatizaciones">
+  <p class="eyebrow">Las dos máquinas</p>
+  <h2>La auto filtra. El humano cierra el mismo bloque.</h2>
+  <div class="grid2">
+    <div class="card">
+      <span class="pill blue">Nuevos</span>
+      <h3 style="margin-top:8px">3 WhatsApp / 3 días</h3>
+      <p>Responde → Valentina + aviso. Silencio → Abandonado. No entregado → No válido. La asesora no chatea encima de la auto.</p>
+    </div>
+    <div class="card">
+      <span class="pill amber">Rescate</span>
+      <h3 style="margin-top:8px">Lote cerrado, 2 mensajes</h3>
+      <p>Botones claros. Respuesta positiva → llamada el mismo bloque + etiqueta del lote. “Ya no me interesa” → Perdido (casi siempre Timing o Barrera).</p>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <h3>Valentina no hace esto</h3>
+    <p>No dice colegiaturas. No arma planes de pago. No explica titulación ni revalidación. No afirma “ya quedaste agendado” si no hay booking. Si un lead se enfría por un precio que soltó ella, el error es de la KB: se reporta a SuperLeads el mismo día.</p>
+  </div>
+</section>
+
+<!-- 19 COORD -->
+<section class="slide" data-i="19" data-label="Coordinación">
+  <p class="eyebrow">Capa de coordinación · 15 minutos</p>
+  <h2>Dirección no lee chats. Revisa vistas.</h2>
+  <table class="table">
+    <thead><tr><th>Vista</th><th>Alarma</th></tr></thead>
+    <tr><td>Intento 1</td><td>Siguen aquí al día siguiente a las 12 h</td></tr>
+    <tr><td>Intento 2</td><td>Sin Nota del día</td></tr>
+    <tr><td>Intento 3</td><td>Siguen mañana — hoy se avanza o se pierde</td></tr>
+    <tr><td>Etiqueta de rescate</td><td>Sin llamada el mismo día que respondieron</td></tr>
+    <tr><td>Calificado sin cita</td><td>Más de 24 h</td></tr>
+    <tr><td>Cita de hoy / mañana</td><td>Sin Nota-brief</td></tr>
+    <tr><td>Tareas vencidas</td><td>Más de 3</td></tr>
+  </table>
+  <p class="foot">Ritual: rescates primero → Intento 3 → citas → tareas vencidas → un caso de coaching de 3 minutos.</p>
+</section>
+
+<!-- 20 CHECK -->
+<section class="slide light" data-i="20" data-label="Checklist">
+  <p class="eyebrow">Checklist de bolsillo · márcalo</p>
+  <div class="grid2">
+    <div>
+      <h3 style="font-family:var(--font-h);margin-bottom:8px">Asesora · cada oportunidad</h3>
+      <div id="chkA"></div>
+    </div>
+    <div>
+      <h3 style="font-family:var(--font-h);margin-bottom:8px">Dirección · arranque de jornada</h3>
+      <div id="chkD"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 21 CIERRE -->
+<section class="slide" data-i="21" data-label="Campus y cierre">
+  <p class="eyebrow">Dos campus. Un playbook.</p>
+  <div class="grid2">
+    <div class="card">
+      <h3>Ciudad Guzmán</h3>
+      <p>Asesoras: Evelyn, Ingrid.<br>Operación: Andrea.<br>Reportes: Coach Daniel — importan, no frenan la captación.</p>
+    </div>
+    <div class="card">
+      <h3>Sahuayo</h3>
+      <p>Asesora: Fátima.<br>Dirección: Lili — interviene en Calificado y Cita, prueba de Valentina, excepción de oferta.</p>
+    </div>
+  </div>
+  <p class="quote" style="margin-top:28px">Si no está en la etiqueta, en la Nota o en la Tarea, no pasó.</p>
+  <p class="lede">El embudo no es un cajón. Es una fila con hora de salida.</p>
+</section>
+
+</div>
+
+<div class="nav">
+  <button type="button" id="prev" aria-label="Anterior">←</button>
+  <button type="button" id="next" aria-label="Siguiente">→</button>
+</div>
+<div class="dots" id="dots"></div>
+
+<script>
+const slides = [...document.querySelectorAll('.slide')];
+let i = 0;
+const bar = document.getElementById('bar');
+const count = document.getElementById('count');
+const dots = document.getElementById('dots');
+const jumpSel = document.getElementById('jumpSel');
+
+slides.forEach((s, idx) => {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.setAttribute('aria-label', s.dataset.label || ('Slide '+(idx+1)));
+  b.addEventListener('click', () => go(idx));
+  dots.appendChild(b);
+  const opt = document.createElement('option');
+  opt.value = idx;
+  opt.textContent = String(idx+1).padStart(2,'0') + ' · ' + (s.dataset.label || '');
+  jumpSel.appendChild(opt);
+});
+
+function go(n){
+  i = Math.max(0, Math.min(slides.length-1, n));
+  slides.forEach((s,k) => s.classList.toggle('on', k===i));
+  [...dots.children].forEach((d,k) => d.classList.toggle('now', k===i));
+  bar.style.width = ((i)/(slides.length-1)*100) + '%';
+  count.textContent = String(i+1).padStart(2,'0') + ' / ' + String(slides.length).padStart(2,'0');
+  jumpSel.value = i;
+}
+jumpSel.addEventListener('change', e => go(+e.target.value));
+document.getElementById('prev').addEventListener('click', () => go(i-1));
+document.getElementById('next').addEventListener('click', () => go(i+1));
+document.addEventListener('keydown', e => {
+  if(e.key==='ArrowRight' || e.key==='PageDown' || e.key===' '){ e.preventDefault(); go(i+1); }
+  if(e.key==='ArrowLeft' || e.key==='PageUp'){ e.preventDefault(); go(i-1); }
+  if(e.key==='Home'){ e.preventDefault(); go(0); }
+  if(e.key==='End'){ e.preventDefault(); go(slides.length-1); }
+});
+
+document.addEventListener('click', e => {
+  const fold = e.target.closest('.fold');
+  if(!fold) return;
+  const group = fold.parentElement.querySelectorAll('.fold');
+  group.forEach(f => { if(f!==fold) f.classList.remove('open'); });
+  fold.classList.toggle('open');
+});
+
+const funnel = [
+  {n:'01', name:'Nuevo', w:100, c:'#012583', d:'Primer contacto bidireccional', slide:6},
+  {n:'02', name:'Contactado', w:92, c:'#220A78', d:'Situación y programa', slide:7},
+  {n:'03', name:'Calificado', w:84, c:'#012583', d:'Real, viable, con intención', slide:8},
+  {n:'04', name:'Cita', w:76, c:'#220A78', d:'Que asista · No Show vive aquí', slide:9},
+  {n:'05', name:'Asistencia', w:68, c:'#220A78', d:'Visita → trámite o cierre', slide:10},
+  {n:'06', name:'Entrega de documentos', w:58, c:'#012583', d:'Papeles, pago, alta', slide:11},
+  {n:'07', name:'Inscrito en espera de grupo', w:48, c:'#012583', d:'Pagó · grupo por confirmar', slide:11},
+  {n:'08', name:'Inscrito', w:36, c:'#0E7A4E', d:'Formalización y onboarding', slide:12},
+];
+document.getElementById('funnel').innerHTML = funnel.map(f =>
+  `<button type="button" class="fbar" style="width:${f.w}%;background:${f.c}" data-go="${f.slide}">${f.n}  ${f.name}<small>${f.d}</small></button>`
+).join('');
+document.getElementById('funnel').addEventListener('click', e => {
+  const btn = e.target.closest('[data-go]');
+  if(btn) go(+btn.dataset.go);
+});
+
+const examples = [
+  {k:'A', t:'Respondió “armar mi plan”', body:'Hola [Nombre], te marqué hace unos minutos. Vi que quieres armar tu plan de [Criminología]. Este cuatrimestre cierra inscripciones esta semana y no quiero que se te pase el lugar. ¿En qué horario te queda mejor que te marque de nuevo hoy?'},
+  {k:'B', t:'Intento 2', body:'Hola [Nombre], te volví a marcar. Sigo en esto para dejarte el plan de [programa] armado antes del cierre. Si te queda mejor por WhatsApp, dime un horario y te llamo puntual.'},
+  {k:'C', t:'Breakup', body:'Hola [Nombre], te dejé dos llamadas y dos mensajes para armar tu plan de [programa]. Entiendo que ahora no es momento. Si más adelante quieres retomar, aquí sigo. Te dejo el número del campus.'},
+  {k:'D', t:'Dijo “sí” sin programa', body:'Perfecto. Para no perder tiempo: ¿qué licenciatura quieres cursar este cuatrimestre en UNV?'},
+  {k:'E', t:'Pidió costo por chat', body:'Te lo armo con el programa exacto y la promo que está vigente este cierre, porque el número cambia según modalidad y beca. ¿Te marco ahora o en 20 minutos?'},
+];
+const exTabs = document.getElementById('exTabs');
+const exPanels = document.getElementById('exPanels');
+examples.forEach((ex, idx) => {
+  const b = document.createElement('button');
+  b.type='button'; b.className='tab'+(idx===0?' on':''); b.textContent=ex.k+' · '+ex.t;
+  b.addEventListener('click', () => {
+    [...exTabs.children].forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    [...exPanels.children].forEach((p,j)=>p.classList.toggle('on', j===idx));
+  });
+  exTabs.appendChild(b);
+  const p = document.createElement('div');
+  p.className='panel example'+(idx===0?' on':'');
+  p.textContent=ex.body;
+  exPanels.appendChild(p);
+});
+
+const catalog = [
+  ['01','No válido','Perdido','Número inexistente o de un tercero. Antes de gastar cadencia.'],
+  ['02','Abandonado','Abandonado','Solo Nuevo. Auto de 3 mensajes sin una respuesta.'],
+  ['03','Ghosting','Perdido','Hubo contacto y silencio al agotar 1+1×3. Se nombra la etapa.'],
+  ['04','No Show no recuperado','Perdido','Solo Cita. No llegó y no reagendó en 48 h.'],
+  ['05','Fuera de perfil','Perdido','Programa inexistente, requisito, titulación o empleo.'],
+  ['06','Ubicación','Perdido','No puede cursar aquí. Se ofrece el otro campus UNV antes.'],
+  ['07','Competencia','Perdido','Se quedó en otra universidad. Anotar cuál.'],
+  ['08','Timing / ciclo','Perdido','“Mejor enero.” Cantera del próximo ciclo, no Ghosting.'],
+  ['09','Barrera económica','Perdido','Lo dijo: no le alcanza. Preguntar precio no es esta razón.'],
+  ['10','No cumplió requisito','Perdido','Solo Internas. Documento o requisito definitivo.'],
+];
+document.getElementById('catGrid').innerHTML = catalog.map(c => `
+  <button type="button" class="fold" style="margin:0">
+    <span class="num">${c[0]}</span>
+    <span><h3>${c[1]} · ${c[2]}</h3><p>${c[3]}</p></span>
+  </button>
+`).join('');
+
+const chkA = [
+  'Leí el contexto (chat, botón, Nota previa) antes de marcar.',
+  'Llamé desde el CRM.',
+  'Si no contestó: WhatsApp con contexto, no plantilla vacía.',
+  'Etiqueta de intento correcta (y quité la anterior).',
+  'Nota con contenido, no con “se le marcó”.',
+  'Tarea del siguiente paso con hora.',
+  'Oferta académica actualizada si ya la dijo.',
+  'Si agoté el día 3: Perdido con razón. No lo escondí en Contactado.',
+];
+const chkD = [
+  'Rescates del día llamados o asignados.',
+  'Intento 3 a cero antes de las 18:00.',
+  'Citas de hoy confirmadas.',
+  'Cero Tareas vencidas de hace más de 24 h sin Nota.',
+];
+function mountChecks(id, items, key){
+  const wrap = document.getElementById(id);
+  const saved = JSON.parse(sessionStorage.getItem(key) || '{}');
+  items.forEach((t,n) => {
+    const lab = document.createElement('label');
+    lab.className='check';
+    const inp = document.createElement('input');
+    inp.type='checkbox'; inp.checked=!!saved[n];
+    inp.addEventListener('change', () => {
+      saved[n]=inp.checked;
+      sessionStorage.setItem(key, JSON.stringify(saved));
+    });
+    const span = document.createElement('span');
+    span.textContent=t;
+    lab.append(inp, span);
+    wrap.appendChild(lab);
+  });
+}
+mountChecks('chkA', chkA, 'unv-chk-a');
+mountChecks('chkD', chkD, 'unv-chk-d');
+
+go(0);
+</script>
+</body>
+</html>
